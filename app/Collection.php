@@ -8,7 +8,17 @@ class Collection extends Model
 {
 	protected $table = 'collection_detail';
     protected $fillable = [
-        'collector_id', 'deb_it', 'amount','notes',
+        'collector_id', 'debt_it', 'amount','notes',
     ];
+
+    public function collector()
+    {
+    	return $this->belongsTo('App\User','collector_id');
+    }
+
+    public function debt()
+    {
+    	return $this->belongsTo('App\Debt');
+    }
     
 }
