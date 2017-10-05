@@ -25,4 +25,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::post('disburseProduct', 'ApiController@disburseProduct');
 	Route::post('collectPayment', 'ApiController@collectPayment');
 	Route::get('getCollectorProducts','ApiController@getCollectorsProduct');
+	Route::get('getBeginningInventory','ApiController@getBeginningInventory');
+	Route::get('getActualSales','ApiController@getActualSales');
+	Route::get('getOutStandingInventory','ApiController@getOutStandingInventory');
+	Route::get('getMonthlySales','ApiController@getMonthlySales');
 });

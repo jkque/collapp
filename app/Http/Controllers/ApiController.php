@@ -17,6 +17,7 @@ use Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Carbon\Carbon;
 
 class ApiController extends Controller
 {
@@ -25,7 +26,7 @@ class ApiController extends Controller
 
     public function login(Request $request)
     {
-        if(Auth::attempt(['username' => request('username'), 'password' => request('password')])){
+        if(Auth::attempt(['username' => request('username'), 'password' => request('password'),'role_id' => 2])){
             $user = $this->guard()->user();
             $user->generateToken();
             return response()->json(['user' => $user->toArray()], 200)->withHeaders([
@@ -41,7 +42,7 @@ class ApiController extends Controller
 
     public function logout(Request $request)
 	{
-	    $user = Auth::guard('api')->user();
+	    $user = User::find($request->id);
 
 	    if ($user) {
 	        $user->api_token = null;
@@ -222,11 +223,64 @@ class ApiController extends Controller
 
     }
 
+    public function getBeginningInventory(Request $request)
+    {
+        $total = 0.00;
+        $productsOnHand = User::find($request->id)->load('productsOnHand.details.product')->productsOnHand;
+        foreach ($productsOnHand as $onHand) {
+            $total+=$onHand->details->pluck('product.price')->sum();
+        }
+        return response()->json(['total'=>$total],200);
+    }
 
+    public function getActualSales(Request $request)
+    {
+        $total = 0.00;
+        $disburses = User::find($request->id)->load('productsDisburse.details.product')->productsDisburse;
+        foreach ($disburses as $disburse) {
+            $total+=$disburse->details->pluck('product.price')->sum();
+        }
+        return response()->json(['total'=>$total],200);
+    }
+
+    public function getOutStandingInventory(Request $request)
+    {
+        $beginning_inventory = 0.00;
+        $productsOnHand = User::find($request->id)->load('productsOnHand.details.product')->productsOnHand;
+        foreach ($productsOnHand as $onHand) {
+            $beginning_inventory+=$onHand->details->pluck('product.price')->sum();
+        }
+
+
+        $actual_sales = 0.00;
+        $disburses = User::find($request->id)->load('productsDisburse.details.product')->productsDisburse;
+        foreach ($disburses as $disburse) {
+            $actual_sales+=$disburse->details->pluck('product.price')->sum();
+        }
+        $outStanding = $beginning_inventory - $actual_sales;
+        return response()->json(['total'=>$outStanding],200);
+    }
+
+    public function getMonthlySales(Request $request)
+    {
+        $today = Carbon::now();
+        $total = 0.00;
+        $disburses = User::find($request->id)->load('productsDisburse.details.product')->productsDisburse()->where('created_at','<=',$today->year.'-12-'.$this->days_in_month($today->month,$today->year))->where('created_at','>=',$today->year.'-'.$today->month.'-1')->get();
+        foreach ($disburses as $disburse) {
+            $total+=$disburse->details->pluck('product.price')->sum();
+        }
+        return response()->json(['total'=>$total],200);
+    }
 
 
     private function similarUsersExists($fname, $lname, $agency_id) {
         return User::where([['first_name', $fname], ['last_name', $lname], ['agency_id', $agency_id]])->get();
+    }
+
+    private function days_in_month($month, $year) 
+    { 
+        // calculate number of days in a month 
+        return $month == 2 ? ($year % 4 ? 28 : ($year % 100 ? 29 : ($year % 400 ? 28 : 29))) : (($month - 1) % 7 % 2 ? 30 : 31); 
     }
     
 }

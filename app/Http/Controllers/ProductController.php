@@ -19,7 +19,10 @@ class ProductController extends Controller
 			'unit_id'      => 'required',
 		]);
 		if ($validator->fails()) {
-		    return response()->json(['error'=>$validator->errors(),'success'=>false], 400);            
+            return [
+                'success' => false,
+                'errors' => $validator->errors(), 
+            ];            
 		}
 
         if(!$request->has('id')) {
@@ -29,7 +32,12 @@ class ProductController extends Controller
         }
 
         $product->fill($request->all());
-        return response()->json(['product'=>$product],200);
+        $product->save();
+        return [
+            'success' => true,
+            'product' => $product->load('unit'),
+            'message' => 'Product successfully added!',
+        ];
     	
     }
 }
