@@ -216,6 +216,12 @@ class ApiController extends Controller
         return response()->json(['data'=>$payment->load('debt.debtor')],200);
     }
 
+    public function getCollectorsProduct(Request $request)
+    {
+        return response()->json(['data'=>User::find($request->id)->load('productsOnHand.details.product.unit')],206);
+
+    }
+
 
 
 
