@@ -28,7 +28,10 @@ class ApiController extends Controller
         if(Auth::attempt(['username' => request('username'), 'password' => request('password')])){
             $user = $this->guard()->user();
             $user->generateToken();
-            return response()->json(['user' => $user->toArray()], 200);
+            return response()->json(['user' => $user->toArray()], 200)->withHeaders([
+                    'Access' => 'application/json',
+                    'Authorization' => 'Bearer '.$user->generateToken()
+        	]);
         }
         else{
             return response()->json(['error'=>'Unauthorised'], 401);
@@ -153,7 +156,7 @@ class ApiController extends Controller
         	}
         }
 
-        return response()->json(['data'=>$onHand->load('details.product','collector')],200);
+        return response()->json(['data'=>$onHand->load('details.product.unit','collector')],200);
     }
 
     public function disburseProduct(Request $request)
@@ -191,7 +194,7 @@ class ApiController extends Controller
     	$debt->save();
 
 
-        return response()->json(['disburse'=>$disburse->load('details.product'),'debt'=>$debt->load('debtor')],200);
+        return response()->json(['disburse'=>$disburse->load('details.product.unit'),'debt'=>$debt->load('debtor')],200);
     }
 
     public function collectPayment(Request $request)
