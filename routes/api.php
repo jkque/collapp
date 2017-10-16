@@ -30,4 +30,4 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('getOutStandingInventory','ApiController@getOutStandingInventory');
 	Route::get('getMonthlySales','ApiController@getMonthlySales');
 });
-Route::post('globeWebhook','ApiController@globeWebhook');
+Route::get('globeWebhook','ApiController@globeWebhook');

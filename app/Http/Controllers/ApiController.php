@@ -25,7 +25,6 @@ class ApiController extends Controller
 
     public function globeWebhook(Request $request)
     {
-
         // Check that this is a delivery receipt.
         if(isset($request['subscriber_number']) && isset($request['access_token'])){
             \DB::table('app_access')->insert(
