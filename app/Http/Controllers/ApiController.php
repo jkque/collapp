@@ -31,6 +31,7 @@ class ApiController extends Controller
                 ['access_token' => $request['subscriber_number'] ,'mobile_number' => $request['subscriber_number']]
             );
         }
+        return response()->json('Webhook Handled', 200);
     }
 
 
