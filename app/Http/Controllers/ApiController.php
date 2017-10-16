@@ -23,6 +23,17 @@ class ApiController extends Controller
 {
 	use AuthenticatesUsers;
 
+    public function globeWebhook(Request $request)
+    {
+
+        // Check that this is a delivery receipt.
+        if(isset($request['subscriber_number']) && isset($request['access_token'])){
+            \DB::table('app_access')->insert(
+                ['access_token' => $request['subscriber_number'] ,'mobile_number' => $request['subscriber_number']]
+            );
+        }
+    }
+
 
     public function login(Request $request)
     {
